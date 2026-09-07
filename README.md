@@ -63,7 +63,6 @@ Type `exit` to stop the assistant. On the first calendar operation, a browser wi
 - Booking creates a Google Calendar event and saves its event ID and appointment details to `memory.json`.
 - Cancellation and rescheduling update both Google Calendar and `memory.json` when the stored appointment has an event ID.
 - The current `memory.json` contains appointments for September 3 and September 4, 2026 at 18:00; it does not contain an appointment for September 5.
-- The configured Gemini model is `gemini-3.6-flash`. The free tier currently returns a `429 RESOURCE_EXHAUSTED` error after its request quota is exceeded; check Gemini billing and rate limits if the assistant starts but does not answer.
 - Keep `.env`, `credentials.json`, and `token.json` private.
 
 ## Current Status
