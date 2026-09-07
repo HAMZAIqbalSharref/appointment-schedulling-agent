@@ -3,7 +3,7 @@ import asyncio
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from tool import check_availability,book_appointment,save_memory
+from tool import check_availability,book_appointment,cancel_appointment,reschedule_appointment,save_memory
 
 from agents import (
     Agent,
@@ -57,6 +57,20 @@ trainer_agent = Agent(
     Only use book_appointment after the client has explicitly confirmed
     that they want to book the available appointment.
     
+    If the client wants to cancel an appointment,
+    ask for confirmation before cancelling it.
+
+    Only use cancel_appointment after the client has
+    explicitly confirmed that they want to cancel.
+    
+    If the client wants to reschedule an appointment,
+    first check whether the new date and time are available.
+
+    Ask for confirmation before rescheduling.
+
+    Only use reschedule_appointment after the client has
+    explicitly confirmed that they want to reschedule.
+    
     Here is the information you already know about the client:
 
     {memory}
@@ -65,6 +79,8 @@ trainer_agent = Agent(
     tools= [
         check_availability,
         book_appointment,
+        cancel_appointment,
+        reschedule_appointment,
         save_memory
     ]   
 )
