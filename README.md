@@ -18,6 +18,8 @@ A conversational personal trainer appointment assistant powered by the OpenAI Ag
    .\.venv\Scripts\Activate.ps1
    ```
 
+   In VS Code, select `.venv\Scripts\python.exe` as the Python interpreter. If activation is unavailable, run the program directly with `\.venv\Scripts\python.exe`.
+
 2. Install the dependencies:
 
    ```powershell
@@ -40,6 +42,12 @@ Start the interactive assistant:
 python agent.py
 ```
 
+If the virtual environment is not activated, use:
+
+```powershell
+.\.venv\Scripts\python.exe agent.py
+```
+
 Type `exit` to stop the assistant. On the first calendar operation, a browser window opens for Google authorization. The resulting `token.json` file is stored locally and ignored by Git.
 
 ## Project Files
@@ -52,5 +60,14 @@ Type `exit` to stop the assistant. On the first calendar operation, a browser wi
 ## Notes
 
 - Calendar times are interpreted as Pakistan Standard Time (UTC+05:00).
-- Appointments are currently saved to `memory.json`; booking does not yet create a Google Calendar event.
+- Booking creates a Google Calendar event and saves its event ID and appointment details to `memory.json`.
+- Cancellation and rescheduling update both Google Calendar and `memory.json` when the stored appointment has an event ID.
+- The current `memory.json` contains appointments for September 3 and September 4, 2026 at 18:00; it does not contain an appointment for September 5.
+- The configured Gemini model is `gemini-3.6-flash`. The free tier currently returns a `429 RESOURCE_EXHAUSTED` error after its request quota is exceeded; check Gemini billing and rate limits if the assistant starts but does not answer.
 - Keep `.env`, `credentials.json`, and `token.json` private.
+
+## Current Status
+
+- The application starts successfully with the project virtual environment and reaches the interactive prompt.
+- The installed dependencies include `openai-agents 0.22.0`, `python-dotenv 1.2.3`, and `google-api-python-client 2.200.0`.
+- Google OAuth files are present locally, so calendar operations can use the saved token until reauthorization is required.
