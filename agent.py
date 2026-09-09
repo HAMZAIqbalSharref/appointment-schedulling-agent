@@ -3,7 +3,7 @@ import asyncio
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from tool import check_availability,book_appointment,cancel_appointment,reschedule_appointment,save_memory
+from tool import check_availability,book_appointment,cancel_appointment,reschedule_appointment,save_memory,create_task,get_tasks
 
 from agents import (
     Agent,
@@ -48,8 +48,8 @@ trainer_agent = Agent(
 
     Be friendly, professional, and concise.
 
-    For now, you are only responsible for understanding
-    appointment requests. We will add scheduling tools later.
+    You can also create persistent tasks when the client asks for a reminder
+    or a task. Ask for any missing date or time before creating one.
     
     When you have both a date and a specific time,
     use the check_availability tool to check the trainer's schedule.
@@ -71,6 +71,21 @@ trainer_agent = Agent(
     Only use reschedule_appointment after the client has
     explicitly confirmed that they want to reschedule.
     
+    When the user asks about their tasks, use the get_tasks tool to retrieve the relevant tasks from tasks.json.
+
+    Use get_tasks when the user asks questions such as:
+    - "What tasks do I have?"
+    - "What tasks do I have tomorrow?"
+    - "What are my tasks for today?"
+    - "Show me my unfinished tasks."
+    - "What tasks do I have this week?"
+
+    When the user uses a relative date such as "today" or "tomorrow", determine the actual date first and pass the date to get_tasks in YYYY-MM-DD format.
+    
+    Do not claim to know the user's tasks without using get_tasks.
+
+    Use the information returned by get_tasks to give the user a concise, natural-language answer.
+    
     Here is the information you already know about the client:
 
     {memory}
@@ -81,7 +96,9 @@ trainer_agent = Agent(
         book_appointment,
         cancel_appointment,
         reschedule_appointment,
-        save_memory
+        save_memory,
+        create_task,
+        get_tasks
     ]   
 )
 

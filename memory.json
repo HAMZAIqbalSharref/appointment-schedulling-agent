@@ -3,13 +3,9 @@
     "appointments": [
         {
             "date": "2026-09-03",
-            "time": "18:00",
-            "type": "Personal Training"
-        },
-        {
-            "date": "2026-09-04",
-            "time": "18:00",
-            "type": "Personal Training"
+            "time": "19:00",
+            "type": "Personal Training",
+            "event_id": "q37phhamf6jn06h1790vfnk5nk"
         }
     ]
 }
