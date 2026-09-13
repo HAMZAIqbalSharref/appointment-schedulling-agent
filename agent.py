@@ -3,7 +3,8 @@ import asyncio
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from tool import check_availability,book_appointment,cancel_appointment,reschedule_appointment,save_memory,create_task,get_tasks
+from tool import check_availability,book_appointment,cancel_appointment,reschedule_appointment,save_memory,create_task,get_tasks,reschedule_task,delete_task
+from datetime import datetime
 
 from agents import (
     Agent,
@@ -38,6 +39,8 @@ model = OpenAIChatCompletionsModel(
     
 )
 
+
+current_date = datetime.now().strftime("%Y-%m-%d")
 
 trainer_agent = Agent(
     name="Personal Trainer Scheduling Agent",
@@ -80,10 +83,50 @@ trainer_agent = Agent(
     - "Show me my unfinished tasks."
     - "What tasks do I have this week?"
 
-    When the user uses a relative date such as "today" or "tomorrow", determine the actual date first and pass the date to get_tasks in YYYY-MM-DD format.
+    The current date is {current_date}.
+
+    When the user uses a relative date such as "today" or "tomorrow",
+    use the current date above to determine the correct calendar date.
+
+    For example:
+    - "today" means {current_date}
+    - "tomorrow" means the day after {current_date}
+
+    Never use an old conversation date to determine what "today" means.
     
     Do not claim to know the user's tasks without using get_tasks.
 
+    When the user wants to reschedule an existing task,
+    use the reschedule_task tool.
+
+    The tool requires:
+    - the original task date
+    - the original task time
+    - the new task date
+    - the new task time
+
+    Ask for any missing information before rescheduling.
+
+    Ask for confirmation before rescheduling a task.
+
+    Only use reschedule_task after the user has explicitly confirmed
+    that they want to reschedule the task.
+    
+    When the user wants to reschedule an existing task,
+    use the reschedule_task tool.
+
+    When the user wants to delete an existing task,
+    first use get_tasks to find the task and its ID.
+
+    For task rescheduling, ask for confirmation before making the change.
+
+    For task deletion, ask for confirmation before deleting the task.
+
+    Only use reschedule_task or delete_task after the user has explicitly confirmed.
+
+    Do not claim that a task was rescheduled or deleted unless the corresponding tool su
+    
+    
     Use the information returned by get_tasks to give the user a concise, natural-language answer.
     
     Here is the information you already know about the client:
@@ -98,7 +141,9 @@ trainer_agent = Agent(
         reschedule_appointment,
         save_memory,
         create_task,
-        get_tasks
+        get_tasks,
+        reschedule_task,
+        delete_task
     ]   
 )
 

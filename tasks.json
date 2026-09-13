@@ -7,5 +7,23 @@
         "duration": 60,
         "reminder": "No reminder",
         "done": false
+    },
+    {
+        "id": "task-1789296372.223553",
+        "title": "Running Session",
+        "date": "2026-09-10",
+        "start": "18:00",
+        "duration": 60,
+        "reminder": "No reminder",
+        "done": false
+    },
+    {
+        "id": "task-1789296580.702633",
+        "title": "Gaming Session - Valorant with the boys",
+        "date": "2026-09-10",
+        "start": "20:00",
+        "duration": 60,
+        "reminder": "No reminder",
+        "done": false
     }
 ]

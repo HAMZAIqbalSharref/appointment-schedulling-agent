@@ -45,7 +45,37 @@ def check_availability(date: str, time: str) -> str:
     return f"{date} at {time} is not available."
 
 
+def has_calendar_conflict(
+    service,
+    start_time,
+    end_time,
+    exclude_event_id=None
+) -> bool:
+    """
+    Check Google Calendar for events overlapping the requested time.
 
+    If exclude_event_id is provided, that event is ignored.
+    This is useful when rescheduling an existing appointment.
+    """
+
+    events_result = service.events().list(
+        calendarId="primary",
+        timeMin=start_time.isoformat(),
+        timeMax=end_time.isoformat(),
+        singleEvents=True,
+        orderBy="startTime"
+    ).execute()
+
+    events = events_result.get("items", [])
+
+    for event in events:
+        # Ignore the appointment we are currently rescheduling.
+        if event.get("id") == exclude_event_id:
+            continue
+
+        return True
+
+    return False
 
 @function_tool
 def book_appointment(client_name: str, date: str, time: str):
@@ -65,6 +95,12 @@ def book_appointment(client_name: str, date: str, time: str):
     # Personal training sessions are 1 hour long.
     end_time = start_time + timedelta(hours=1)
 
+    if has_calendar_conflict(service, start_time, end_time):
+        return (
+         f"Sorry, {date} at {time} is already occupied. "
+        "The appointment was not booked."
+     )
+        
     # Information for the Google Calendar event.
     event = {
         "summary": "Personal Training",
@@ -195,6 +231,17 @@ def reschedule_appointment( #"To reschedule an appointment, tell me which appoin
 
     new_end = new_start + timedelta(hours=1)
 
+     # Prevent rescheduling into a conflicting time.
+    if has_calendar_conflict(
+        service,
+        new_start,
+        new_end,
+        exclude_event_id=appointment_to_reschedule["event_id"]
+    ):
+        return (
+            f"Sorry, {new_date} at {new_time} is already occupied. "
+            "The appointment was not rescheduled."
+        )
     # Update the Google Calendar event.
     event = service.events().get(
         calendarId="primary",
@@ -304,3 +351,86 @@ def get_tasks(date: str | None = None) -> str:
         return "No tasks found."
 
     return json.dumps(tasks, indent=2)  
+
+@function_tool
+def reschedule_task(
+    old_date: str,
+    old_time: str,
+    new_date: str,
+    new_time: str
+) -> str:
+    """
+    Reschedule an existing task to a new date and time.
+    """
+
+    tasks_file = Path("tasks.json")
+
+    if not tasks_file.exists():
+        return "No tasks found."
+
+    with open(tasks_file, "r", encoding="utf-8") as file:
+        tasks = json.load(file)
+
+    # Find the task we want to reschedule.
+    task_to_reschedule = None
+
+    for task in tasks:
+        if (
+            task.get("date") == old_date
+            and task.get("start") == old_time
+        ):
+            task_to_reschedule = task # we have the task that we need to update
+            break
+
+    if not task_to_reschedule:
+        return f"No task was found for {old_date} at {old_time}."
+
+    # Update the task's date and time.
+    task_to_reschedule["date"] = new_date #now updating the time and date 
+    task_to_reschedule["start"] = new_time
+
+    # Save the updated tasks.
+    with open("tasks.json", "w", encoding="utf-8") as file:
+        json.dump(tasks, file, indent=4)
+
+    return (
+        f"Task '{task_to_reschedule['title']}' "
+        f"rescheduled from {old_date} at {old_time} "
+        f"to {new_date} at {new_time}."
+    )
+    
+
+
+@function_tool
+def delete_task(task_id: str) -> str:
+    """
+    Delete an existing task from tasks.json.
+    """
+
+    tasks_file = Path("tasks.json")
+
+    if not tasks_file.exists():
+        return "No tasks found."
+
+    with open("tasks.json", "r", encoding="utf-8") as file:
+        tasks = json.load(file)
+
+    # Find the task using its ID.
+    task_to_delete = None
+
+    for task in tasks:
+        if task.get("id") == task_id:
+            task_to_delete = task
+            break
+
+    if not task_to_delete:
+        return f"No task was found with ID {task_id}."
+
+    # Remove the task from the list.
+    tasks.remove(task_to_delete)
+
+    # Save the updated task list.
+    with open("tasks.json", "w", encoding="utf-8") as file:
+        json.dump(tasks, file, indent=4)
+
+    return f"Task '{task_to_delete['title']}' has been deleted."

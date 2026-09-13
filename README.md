@@ -80,8 +80,8 @@ The frontend is a Vite and React application in `ui/`. It preserves the schedule
 
 - **Dashboard**: Calculates today's events, upcoming appointments, free time, today's schedule, and real schedule conflicts from fetched data. It includes empty states when there is no schedule data.
 - **Calendar**: Displays real Google Calendar events and persistent tasks by date. Month navigation, date selection, selected-day details, and task/appointment labels use actual event dates and times.
-- **Appointments**: Lists real appointment records and supports booking, cancellation, and rescheduling through the backend.
-- **Tasks**: Lists persistent tasks with title, date, start time, duration, reminder, and completion state. Tasks can be created through the UI or AI Assistant and marked complete.
+- **Appointments**: Lists real appointment records and supports booking, cancellation, and rescheduling through the backend. AI appointment booking and rescheduling reject times that overlap existing Google Calendar events.
+- **Tasks**: Lists persistent tasks with title, date, start time, duration, reminder, and completion state. Tasks can be created, read, rescheduled, and deleted through the AI Assistant, while the UI supports creation and completion toggling.
 - **AI Assistant**: Sends natural-language messages to the FastAPI `/chat` endpoint, preserving the existing `{ message, history }` request format.
 - **Settings**: Provides the existing workspace preference view and theme controls.
 
@@ -107,7 +107,7 @@ Chat history is not sent to a new database. The active conversation's messages c
 
 - `agent.py`: Runs the interactive scheduling assistant.
 - `server.py`: FastAPI application exposing chat, calendar, appointment, and task endpoints.
-- `tool.py`: Defines availability, booking, cancellation, rescheduling, task, and memory tools.
+- `tool.py`: Defines availability, booking, cancellation, rescheduling, task, and memory tools. Task tools include creation, retrieval, rescheduling, and deletion.
 - `calendar_service.py`: Authenticates with and connects to Google Calendar.
 - `ui/src/App.jsx`: Main React application, navigation, dashboard views, calendar, appointments, tasks, and chat history state.
 - `ui/src/styles.css`: Existing responsive layout, colors, dark mode, cards, calendar, and assistant styling.
@@ -117,9 +117,11 @@ Chat history is not sent to a new database. The active conversation's messages c
 ## Notes
 
 - Calendar times are interpreted as Pakistan Standard Time (UTC+05:00).
-- Booking creates a Google Calendar event and saves its event ID and appointment details to `memory.json`.
-- Cancellation and rescheduling update both Google Calendar and `memory.json` when the stored appointment has an event ID.
+- AI booking creates a Google Calendar event and saves its event ID and appointment details to `memory.json` only when the requested one-hour period is free.
+- AI appointment rescheduling checks the new one-hour period for conflicts, excluding the appointment being moved, before updating Google Calendar and `memory.json`.
+- AI task rescheduling updates the matching task in `tasks.json` using its original date and start time. AI task deletion removes the task by ID after the assistant identifies it with `get_tasks`.
 - The FastAPI server exposes read and mutation endpoints for calendar events, appointments, and tasks for the React frontend.
+- The task API currently exposes creation, retrieval, and completion-state updates; AI-only task rescheduling and deletion use the tools in `tool.py`.
 - Keep `.env`, `credentials.json`, and `token.json` private.
 
 ## Current Status

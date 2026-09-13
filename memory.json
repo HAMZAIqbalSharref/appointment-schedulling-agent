@@ -6,6 +6,18 @@
             "time": "19:00",
             "type": "Personal Training",
             "event_id": "q37phhamf6jn06h1790vfnk5nk"
+        },
+        {
+            "date": "2026-09-10",
+            "time": "22:00",
+            "type": "Personal Training",
+            "event_id": "e78of2k2ocll450803g38grea0"
+        },
+        {
+            "date": "2026-09-13",
+            "time": "10:00",
+            "type": "Personal Training",
+            "event_id": "fh9tbtvgo7i30g7k3ic19cdhp0"
         }
     ]
 }
