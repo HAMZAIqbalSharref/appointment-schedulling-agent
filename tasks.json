@@ -1,14 +1,5 @@
 [
     {
-        "id": "task-1788953706.787859",
-        "title": "Python Study Session",
-        "date": "2026-09-10",
-        "start": "16:00",
-        "duration": 60,
-        "reminder": "No reminder",
-        "done": false
-    },
-    {
         "id": "task-1789296372.223553",
         "title": "Running Session",
         "date": "2026-09-10",
@@ -24,6 +15,15 @@
         "start": "20:00",
         "duration": 60,
         "reminder": "No reminder",
+        "done": false
+    },
+    {
+        "id": "task-1789471766.340376",
+        "title": "test 1",
+        "date": "2026-09-15",
+        "start": "18:00",
+        "duration": 60,
+        "reminder": "15 minutes before",
         "done": false
     }
 ]

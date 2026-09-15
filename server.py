@@ -46,6 +46,11 @@ class TaskUpdate(BaseModel):
     done: bool
 
 
+class TaskScheduleUpdate(BaseModel):
+    date: str
+    start: str
+
+
 class AppointmentUpdate(BaseModel):
     date: str
     time: str
@@ -248,6 +253,29 @@ def update_task(task_id: str, request: TaskUpdate):
     task["done"] = request.done
     save_json(TASKS_PATH, tasks)
     return task
+
+
+@app.put("/tasks/{task_id}/schedule")
+def reschedule_task(task_id: str, request: TaskScheduleUpdate):
+    tasks = load_json(TASKS_PATH, [])
+    task = next((item for item in tasks if item.get("id") == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["date"] = request.date
+    task["start"] = request.start
+    save_json(TASKS_PATH, tasks)
+    return task
+
+
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: str):
+    tasks = load_json(TASKS_PATH, [])
+    task = next((item for item in tasks if item.get("id") == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks.remove(task)
+    save_json(TASKS_PATH, tasks)
+    return {"ok": True}
 
 
 @app.post("/chat")

@@ -1400,6 +1400,32 @@ function Tasks({
   onAdd,
   onRefresh
 }) {
+  const [openTaskId, setOpenTaskId] = useState(null);
+
+  const rescheduleTask = async (task) => {
+    const date = window.prompt('New date (YYYY-MM-DD)', task.date);
+    const start = window.prompt('New time (HH:MM)', task.start);
+    if (!date || !start) return;
+
+    const response = await fetch(`${API_BASE}/tasks/${task.id}/schedule`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, start })
+    });
+    if (response.ok) await onRefresh();
+    setOpenTaskId(null);
+  };
+
+  const deleteTask = async (task) => {
+    if (!window.confirm(`Delete "${task.title}"?`)) return;
+
+    const response = await fetch(`${API_BASE}/tasks/${task.id}`, {
+      method: 'DELETE'
+    });
+    if (response.ok) await onRefresh();
+    setOpenTaskId(null);
+  };
+
   return (
     <div className="page">
 
@@ -1486,9 +1512,21 @@ function Tasks({
             </span>
 
 
-            <button className="more-button">
+            <button
+              className="more-button"
+              aria-label={`Actions for ${task.title}`}
+              aria-expanded={openTaskId === task.id}
+              onClick={() => setOpenTaskId((current) => current === task.id ? null : task.id)}
+            >
               •••
             </button>
+
+            {openTaskId === task.id && (
+              <div className="task-actions-menu">
+                <button onClick={() => rescheduleTask(task)}>Reschedule</button>
+                <button className="delete" onClick={() => deleteTask(task)}>Delete</button>
+              </div>
+            )}
 
           </div>
 

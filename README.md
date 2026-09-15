@@ -81,7 +81,7 @@ The frontend is a Vite and React application in `ui/`. It preserves the schedule
 - **Dashboard**: Calculates today's events, upcoming appointments, free time, today's schedule, and real schedule conflicts from fetched data. It includes empty states when there is no schedule data.
 - **Calendar**: Displays real Google Calendar events and persistent tasks by date. Month navigation, date selection, selected-day details, and task/appointment labels use actual event dates and times.
 - **Appointments**: Lists real appointment records and supports booking, cancellation, and rescheduling through the backend. AI appointment booking and rescheduling reject times that overlap existing Google Calendar events.
-- **Tasks**: Lists persistent tasks with title, date, start time, duration, reminder, and completion state. Tasks can be created, read, rescheduled, and deleted through the AI Assistant, while the UI supports creation and completion toggling.
+- **Tasks**: Lists persistent tasks with title, date, start time, duration, reminder, and completion state. Tasks can be added, completed, rescheduled, and deleted from the UI. Use a task's `•••` menu to choose **Reschedule** or **Delete**; changes persist to `tasks.json`. The AI Assistant supports the same task operations.
 - **AI Assistant**: Sends natural-language messages to the FastAPI `/chat` endpoint, preserving the existing `{ message, history }` request format.
 - **Settings**: Provides the existing workspace preference view and theme controls.
 
@@ -121,7 +121,8 @@ Chat history is not sent to a new database. The active conversation's messages c
 - AI appointment rescheduling checks the new one-hour period for conflicts, excluding the appointment being moved, before updating Google Calendar and `memory.json`.
 - AI task rescheduling updates the matching task in `tasks.json` using its original date and start time. AI task deletion removes the task by ID after the assistant identifies it with `get_tasks`.
 - The FastAPI server exposes read and mutation endpoints for calendar events, appointments, and tasks for the React frontend.
-- The task API currently exposes creation, retrieval, and completion-state updates; AI-only task rescheduling and deletion use the tools in `tool.py`.
+- Task API routes include `GET /tasks`, `POST /tasks`, `PATCH /tasks/{task_id}` for completion, `PUT /tasks/{task_id}/schedule` for rescheduling, and `DELETE /tasks/{task_id}` for deletion.
+- Task rescheduling and deletion update `tasks.json`, so both changes remain in effect after refreshing the page or restarting the backend.
 - Keep `.env`, `credentials.json`, and `token.json` private.
 
 ## Current Status
